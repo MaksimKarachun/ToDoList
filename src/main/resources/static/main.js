@@ -10,7 +10,7 @@ $(document).ready (function() {
         $.ajax({
            cache: false,
            url: '/date',
-           method: 'POST',
+           method: 'GET',
            success: function(data){
            appendDate(data);
            }

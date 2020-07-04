@@ -11,7 +11,7 @@ import java.util.Date;
 @RestController
 public class DefaultController {
 
-    @RequestMapping(value = "/date", method = RequestMethod.POST)
+    @RequestMapping(value = "/date", method = RequestMethod.GET)
     public static String getDate(){
         return new Date().toString();
     }
