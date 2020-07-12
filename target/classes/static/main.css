@@ -1,0 +1,20 @@
+        #date-form {
+            flex-direction: row;
+            display: none;
+            position: absolute;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        #current-date {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 300px;
+            height: 50px;
+            border: solid 3px #8471b35c;
+            background: #e1e4ec;
+        }
