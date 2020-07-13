@@ -14,11 +14,11 @@ public class TaskList {
     public static int addTask(Task task){
         int id;
 
-        synchronized (task) {
+        synchronized (taskMap) {
             id = count++;
+            taskMap.put(count++, task);
         }
 
-        taskMap.put(id, task);
         task.setId(id);
         return id;
     }
