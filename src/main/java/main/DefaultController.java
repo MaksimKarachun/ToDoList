@@ -12,7 +12,7 @@ import java.util.Date;
 public class DefaultController {
 
     @RequestMapping(value = "/date", method = RequestMethod.GET)
-    public static String getDate(){
+    public String getDate(){
         return new Date().toString();
     }
 }

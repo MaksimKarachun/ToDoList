@@ -1,56 +1,73 @@
 package main;
 
+import main.model.TodoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import response.Task;
+import main.model.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class TaskController {
 
+    @Autowired
+    private TodoRepository todoRepository;
+
     @PostMapping("/tasks")
-    public static int addTask(Task task){
-        TaskList.addTask(task);
-        return task.getId();
+    public int addTask(Task task){
+        Task newTask = todoRepository.save(task);
+        return newTask.getId();
     }
 
     @PostMapping("/tasks/{id}")
-    public static ResponseEntity addTask(){
+    public ResponseEntity addTask(){
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(null);
     }
 
     @GetMapping("/tasks")
-    public static List<Task> getList(){
-        return TaskList.getAllTask();
+    public List<Task> getList(){
+        Iterable<Task> taskIterable = todoRepository.findAll();
+        ArrayList<Task> tasks = new ArrayList<>();
+        for(Task task : taskIterable){
+            tasks.add(task);
+        }
+        return tasks;
     }
 
     @GetMapping("/tasks/{id}")
-    public static ResponseEntity getList(@PathVariable Integer id){
-        if(TaskList.getTask(id) != null)
-        return new ResponseEntity(TaskList.getTask(id), HttpStatus.OK);
-        else
+    public ResponseEntity getList(@PathVariable Integer id){
+        Optional<Task> taskOptional = todoRepository.findById(id);
+
+        if(!taskOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return new ResponseEntity(taskOptional.get(), HttpStatus.OK);
     }
 
     @PutMapping("/tasks/{id}")
-    public static ResponseEntity edit(@RequestParam Map<String, String> params, @PathVariable Integer id){
-        if(TaskList.getTask(id) != null) {
+    public ResponseEntity edit(@RequestParam Map<String, String> params, @PathVariable Integer id){
+        Optional<Task> taskOptional = todoRepository.findById(id);
+        if(taskOptional.isPresent()) {
+            Task task = taskOptional.get();
             for (Map.Entry entry : params.entrySet()) {
                 switch (entry.getKey().toString()) {
                     case ("description"):
-                        TaskList.getTask(id).setDescription(params.get("description"));
+                        task.setDescription(params.get("description"));
                         break;
                     case ("beginDate"):
-                        TaskList.getTask(id).setBeginDate(params.get("beginDate"));
+                        task.setBeginDate(params.get("beginDate"));
                         break;
                     case ("completionDate"):
-                        TaskList.getTask(id).setCompletionDate(params.get("completionDate"));
+                        task.setCompletionDate(params.get("completionDate"));
                         break;
                 }
             }
+            todoRepository.save(task);
             return ResponseEntity.status(HttpStatus.OK).body(null);
         }
         else
@@ -58,17 +75,19 @@ public class TaskController {
     }
 
     @DeleteMapping("/tasks")
-    public static void deleteTasks(){
-        TaskList.clearMap();
+    public void deleteTasks(){
+        todoRepository.deleteAll();
     }
 
     @DeleteMapping("/tasks/{id}")
-    public static ResponseEntity deleteTask(@PathVariable Integer id){
-        if(TaskList.getTask(id) != null) {
-            TaskList.deleteTask(id);
+    public ResponseEntity deleteTask(@PathVariable Integer id){
+        if(!todoRepository.findById(id).isPresent())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        else {
+            todoRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(null);
         }
-        else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 }
