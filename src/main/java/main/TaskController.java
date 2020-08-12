@@ -31,22 +31,16 @@ public class TaskController {
 
     @GetMapping("/tasks")
     public List<Task> getList(){
-        Iterable<Task> taskIterable = todoRepository.findAll();
         ArrayList<Task> tasks = new ArrayList<>();
-        for(Task task : taskIterable){
-            tasks.add(task);
-        }
+        todoRepository.findAll().forEach(tasks::add);
         return tasks;
     }
 
     @GetMapping("/tasks/{id}")
     public ResponseEntity getList(@PathVariable Integer id){
-        Optional<Task> taskOptional = todoRepository.findById(id);
-
-        if(!taskOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return new ResponseEntity(taskOptional.get(), HttpStatus.OK);
+        return todoRepository.findById(id)
+                .map(t -> new ResponseEntity(t, HttpStatus.OK))
+                .orElse(new ResponseEntity(null, HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/tasks/{id}")
